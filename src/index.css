@@ -69,3 +69,26 @@ body {
   border-image-slice: 1;
   border-image-source: linear-gradient(to right, #5B7FFF, #A259FF);
 }
+
+
+/* Style for auth fields*/
+@layer utilities {
+  .animate-pop-in {
+    animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

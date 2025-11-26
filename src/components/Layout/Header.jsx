@@ -1,5 +1,7 @@
 import NavLink from "../UI/Buttons/NavLink.jsx";
 import AuthButton from "../UI/Buttons/AuthButton.jsx";
+import AuthModal from "../Content/AuthModal.jsx";
+import {useState} from "react";
 
 
 export default function Header() {
@@ -10,7 +12,26 @@ export default function Header() {
         {id: 4, path: "/#randomizer-section", label: "Рандом"}
     ]
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [authMode, setAuthMode] = useState("login");
+
+    const openLogin = () => {
+        setIsModalOpen(true);
+        setAuthMode("login");
+    }
+
+    const openRegister = () => {
+        setIsModalOpen(true);
+        setAuthMode("register")
+    }
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    }
+
     return (
+
+        <>
         <header
             className="fixed top-0 left-0 w-full h-16 z-30 bg-[rgba(25,24,37,0.92)] backdrop-blur-md shadow-md transition-all duration-150">
             <nav className="max-w-[1240px] mx-auto flex items-center justify-between px-4 py-0">
@@ -22,15 +43,20 @@ export default function Header() {
                         )
                     )}
                 </ul>
-                <ul className="flex items-center gap-3 ml-3">
-                    <AuthButton
-                        className="vf-cta px-5 py-2 text-[18px] font-montserrat font-semibold focus:outline-none"
-                        onClick="" variant="primary">Регистрация</AuthButton>
-                    <AuthButton
-                        className="vf-glass px-5 py-2 text-[18px] font-montserrat font-semibold text-[#5B7FFF] hover:text-[#A259FF] transition focus:outline-none"
-                        onClick="" variant="secondary">Войти</AuthButton>
-                </ul>
+                <AuthButton
+                    onLoginClick={openLogin}
+                    onRegisterClick={openRegister}
+                />
             </nav>
         </header>
+
+
+
+        <AuthModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            initialMode={authMode}
+        />
+        </>
     )
 }
