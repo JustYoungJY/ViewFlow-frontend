@@ -8,6 +8,8 @@ import CompilationsPage from "./pages/CompilationsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import CompilationPage from "./pages/SelectionPage.jsx";
 import {useEffect} from "react";
+import {setupInterceptors} from "./api/axiosInstance.js";
+import {useToast} from "./context/ToastContext.jsx";
 
 // Go to hash
 function ScrollToHash() {
@@ -27,6 +29,13 @@ function ScrollToHash() {
 
 
 function App() {
+
+    const { showToast } = useToast();
+
+    useEffect(() => {
+        setupInterceptors(showToast);
+    }, [showToast]);
+
     return (
         <>
             <Header />

@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import instance from "../../api/axiosInstance.js";
 
 
 export default function AuthModal({isOpen, onClose, initialMode = "login"}) {
@@ -23,7 +24,19 @@ export default function AuthModal({isOpen, onClose, initialMode = "login"}) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Here will be fetch request
+        if(isLogin) {
+            instance.post("/auth/login", formData)
+                .then(res => {
+                    localStorage.setItem("accessToken", res.data.accessToken);
+                    localStorage.setItem("refreshToken", res.data.refreshToken);
+                })
+        } else {
+            instance.post("/auth/register", formData)
+                .then(res => {
+                    localStorage.setItem("accessToken", res.data.accessToken);
+                    localStorage.setItem("refreshToken", res.data.refreshToken);
+                })
+        }
     };
 
     const handleChange = (e) => {
