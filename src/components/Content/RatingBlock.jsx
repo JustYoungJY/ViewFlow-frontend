@@ -2,43 +2,58 @@ import viewFlowLogo from "/logo.png"
 import IMDBLogo from "/IMDBLogo.png"
 import kinopoiskLogo from "/kinopoiskLogo.png"
 import rottenLogo from "/rottenLogo.png"
+import tmdbLogo from "/tmdbLogo.jpg"
 
-export default function RatingBlock({ratings, generalRating, viewflowRating}) {
+export default function RatingBlock({ratings, generalRating}) {
 
-    const {imdb = 0, kinopoisk = 0, rotten = 0} = ratings || {};
+    const {ratingKinopoisk = 0, ratingImdb = 0,  ratingTmdb = 0} = ratings || {};
 
     return (
         <div className="flex flex-col space-y-4 p-4 border border-[#2D2A4A] rounded-lg bg-[#121212]/30 w-full lg:w-48">
 
-            <RatingItem
-                iconUrl={viewFlowLogo}
-                label="ViewFlow"
-                value={viewflowRating}
-            />
+            {/*<RatingItem*/}
+            {/*    iconUrl={viewFlowLogo}*/}
+            {/*    label="ViewFlow"*/}
+            {/*    value={viewflowRating}*/}
+            {/*/>*/}
 
-            <RatingItem
-                iconUrl={viewFlowLogo}
-                label="Общий рейтинг"
-                value={generalRating}
-            />
+            { generalRating > 0 && (
+                <RatingItem
+                    iconUrl={viewFlowLogo}
+                    label="Общий рейтинг"
+                    value={generalRating}
+                />
+            )}
 
-            <RatingItem
-                iconUrl={IMDBLogo}
-                label="IMDb"
-                value={imdb}
-            />
+            { ratingImdb > 0 && (
+                <RatingItem
+                    iconUrl={IMDBLogo}
+                    label="IMDb"
+                    value={ratingImdb}
+                />
+            )}
 
-            <RatingItem
-                iconUrl={kinopoiskLogo}
-                label="Кинопоиск"
-                value={kinopoisk}
-            />
+            { ratingKinopoisk > 0 && (
+                <RatingItem
+                    iconUrl={kinopoiskLogo}
+                    label="Кинопоиск"
+                    value={ratingKinopoisk}
+                />
+            )}
 
-            <RatingItem
-                iconUrl={rottenLogo}
-                label="Rotten Tomatoes"
-                value={`${rotten}%`}
-            />
+            { ratingTmdb > 0 && (
+                <RatingItem
+                    iconUrl={tmdbLogo}
+                    label="TMDB"
+                    value={ratingTmdb}
+                />
+            )}
+
+            {/*<RatingItem*/}
+            {/*    iconUrl={rottenLogo}*/}
+            {/*    label="Rotten Tomatoes"*/}
+            {/*    value={`${rotten}%`}*/}
+            {/*/>*/}
         </div>
     )
 }

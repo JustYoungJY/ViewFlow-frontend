@@ -4,17 +4,20 @@ import {useState} from "react";
 
 
 export default function VideoPlayer({trailerUrl, movieUrl}) {
-    const [selectedTab, setSelectedTab] = useState("trailer");
+    const [selectedTab, setSelectedTab] = useState(trailerUrl !== null ? "trailer" : "movie");
 
 
     return (
         <div className="mb-8">
             <div className="flex gap-4 mb-4">
-                <button
-                    className={`px-4 py-2 rounded-lg font-semibold transition duration-200 ${selectedTab === "trailer" ? "bg-[#A259FF] text-white" : "bg-gray-700 hover:bg-gray-600 text-white"}`}
-                    onClick={() => setSelectedTab("trailer")}>
-                    Трейлер
-                </button>
+                {trailerUrl && (
+                    <button
+                        className={`px-4 py-2 rounded-lg font-semibold transition duration-200 ${selectedTab === "trailer" ? "bg-[#A259FF] text-white" : "bg-gray-700 hover:bg-gray-600 text-white"}`}
+                        onClick={() => setSelectedTab("trailer")}>
+                        Трейлер
+                    </button>
+                )}
+
 
                 <button
                     className={`px-4 py-2 rounded-lg font-semibold transition duration-200 ${selectedTab === "movie" ? "bg-[#A259FF] text-white" : "bg-gray-700 hover:bg-gray-600 text-white"}`}

@@ -8,13 +8,14 @@ export default function MovieHeader({movie}) {
         description,
         country,
         genres,
-        director,
+        directors,
         budget,
         posterUrl,
         ratings,
-        generalRating,
-        viewflowRating
+        generalRating
     } = movie;
+
+    const directorsString = directors && directors.length > 0 ? directors.join(", ") : null;
 
     return (
         <div className="bg-[#191825] text-white p-8 md:p-12 lg:p-16">
@@ -43,21 +44,33 @@ export default function MovieHeader({movie}) {
                     <p className="text-[#A6A4B0] text-lg max-w-3xl">{description}</p>
 
                     <div className="space-y-2 pt-4 border-t border-[#2D2A4A]">
-                        <p className="text-gray-300 text-base">
-                            <span className="font-semibold text-gray-200">Страна:</span> {country}
-                        </p>
-                        <p className="text-gray-300 text-base">
-                            <span className="font-semibold text-gray-200">Жанры:</span>
-                            <span className="text-[#A259FF] ml-1">
-                                {genres && Array.isArray(genres) ? genres.join(' • ') : genres}
-                            </span>
-                        </p>
-                        <p className="text-gray-300 text-base">
-                            <span className="font-semibold text-gray-200">Режиссер:</span> {director}
-                        </p>
-                        <p className="text-gray-300 text-base">
-                            <span className="font-semibold text-gray-200">Бюджет:</span> {budget}
-                        </p>
+
+                        { country && country !== "" && (
+                            <p className="text-gray-300 text-base">
+                                <span className="font-semibold text-gray-200">Страна:</span> {country}
+                            </p>
+                        )}
+
+                        { genres && genres.length > 0 && (
+                            <p className="text-gray-300 text-base">
+                                <span className="font-semibold text-gray-200">Жанры:</span>
+                                <span className="text-[#A259FF] ml-1">
+                                    {genres && Array.isArray(genres) ? genres.join(' • ') : genres}
+                                </span>
+                            </p>
+                        )}
+
+                        { directorsString && (
+                            <p className="text-gray-300 text-base">
+                                <span className="font-semibold text-gray-200">Режиссер:</span> {directorsString}
+                            </p>
+                        )}
+
+                        { budget && budget !== "" && (
+                            <p className="text-gray-300 text-base">
+                                <span className="font-semibold text-gray-200">Бюджет:</span> {budget}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -65,7 +78,6 @@ export default function MovieHeader({movie}) {
                     <RatingBlock
                         ratings={ratings}
                         generalRating={generalRating}
-                        viewflowRating={viewflowRating}
                     />
                 </div>
 

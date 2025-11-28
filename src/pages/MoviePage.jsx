@@ -3,41 +3,87 @@ import MovieHeader from "../components/Content/Headers/MovieHeader.jsx";
 import VideoPlayer from "../components/UI/Video/VideoPlayer.jsx";
 import Comment from "../components/UI/Comment/Comment.jsx";
 import HorizontalRow from "../components/Content/Sliders/HorizontalRow.jsx";
+import instance from "../api/axiosInstance.js";
+import {useParams} from "react-router-dom";
 
-export default function MoviePage({ movieId }) {
+export default function MoviePage() {
+    const { id } = useParams();
+    const movieId = id;
+
     const [movie, setMovie] = useState(null);
+    const [similarMovies, setSimilarMovies] = useState(null)
     const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU'); // Трейлер Матрицы
     const [filmUrl, setFilmUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ'); // Заглушка
     const [commentRating, setCommentRating] = useState(0);
 
-
-    const similarMovies = [
-        { id: 10, title: "Начало", posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/840c66b0-94d3-4610-b186-c313200b36c4/600x900", year: 2010, genre: "Фантастика", rating: 8.7 },
-        { id: 11, title: "Интерстеллар", posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900", year: 2014, genre: "Фантастика", rating: 8.6 },
-        { id: 12, title: "Тринадцатый этаж", posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1599028/840c8f94-7164-4a6c-a25e-8515a463f6d7/600x900", year: 1999, genre: "Фантастика", rating: 7.8 },
-        { id: 13, title: "Темный город", posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1773646/c6c84c17-f670-4351-912f-442c8d625574/600x900", year: 1998, genre: "Фантастика", rating: 7.6 },
-    ];
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [movieId]);
 
     useEffect(() => {
-        const dummyMovie = {
-            title: 'Матрица',
-            year: 1999,
-            director: 'Вачовски',
-            description: 'Жизнь Томаса Андерсона разделена на две части: днём он самый обычный офисный работник, получающий нагоняи от начальства, а ночью — хакер Нео, и нет такого преступления в сети, которое он не смог бы совершить...',
-            ratings: {
-                imdb: 8.7,
-                kinopoisk: 8.5,
-                rotten: 88, // %
-            },
-            generalRating: 8.6,
-            viewflowRating: 9.1,
-            posterUrl: 'https://avatars.mds.yandex.net/get-kinopoisk-image/1946459/258fc3d6-8223-40ce-94ea-c87c2acc9f4b/180',
-            country: 'США',
-            genres: ['Фантастика', 'Боевик', 'Триллер'],
-            budget: '$63 000 000',
-        };
-        setMovie(dummyMovie);
+        const fetchMovie = async () => {
+
+            try{
+                const response = await instance.get("/media", {
+                    params: {mediaId: movieId, mediaType: "MOVIE"}
+                })
+
+                const data = response.data
+
+                const formattedMovie = {
+                    title: data.title,
+                    year: data.releaseYear,
+                    directors: data.directors,
+                    description: data.overview,
+                    ratings: data.ratings,
+                    generalRating: data.voteAverage,
+                    posterUrl: data.posterPath
+                        ? `https://image.tmdb.org/t/p/w500${data.posterPath}`
+                        : "https://via.placeholder.com/500x750",
+                    country: data.country,
+                    genres: data.genres,
+                    budget: data.budget,
+                }
+
+                setMovie(formattedMovie);
+
+                if (data.trailerYoutubeId) {
+                    setTrailerUrl(`https://www.youtube.com/embed/${data.trailerYoutubeId}`);
+                } else {
+                    setTrailerUrl(null);
+                }
+
+            } catch(error) {
+                console.error("Ошибка загрузки:", error);
+            }
+        }
+
+        if(movieId) {
+            fetchMovie();
+        }
     }, [movieId]);
+
+
+    useEffect(() => {
+
+        const fetchSimilarMovies = async () => {
+            try {
+                const response = await instance.get("/media/similar", {
+                    params: {mediaId: movieId, mediaType: "MOVIE"}
+                })
+
+                const data = response.data;
+                setSimilarMovies(data)
+            } catch (error) {
+                console.error("Ошибка загрузки похожих фильмов:", error);
+            }
+        }
+
+        if(movie) {
+            fetchSimilarMovies();
+        }
+
+    }, [movieId, movie]);
 
     if (!movie) return <div className="text-white">Загрузка...</div>;
 
@@ -77,10 +123,11 @@ export default function MoviePage({ movieId }) {
                     </div>
                 </section>
 
-                <section className="mt-16 w-full">
-                    <HorizontalRow title="Похожие фильмы" movies={similarMovies} />
-                </section>
-
+                { similarMovies && (
+                    <section className="mt-16 w-full">
+                        <HorizontalRow title="Похожие фильмы" movies={similarMovies} />
+                    </section>
+                )}
 
                 <section className="mt-16 w-full max-w-4xl mx-auto">
                     <h2 className="text-3xl font-bold text-white mb-6">Комментарии</h2>
