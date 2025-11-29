@@ -33,7 +33,7 @@ export default function Header() {
 
         <>
         <header
-            className="fixed top-0 left-0 w-full h-16 z-30 bg-[rgba(25,24,37,0.92)] backdrop-blur-md shadow-md transition-all duration-150">
+            className="fixed top-0 left-0 w-full h-16 z-50 bg-[rgba(25,24,37,0.92)] backdrop-blur-md shadow-md transition-all duration-150">
             <nav className="max-w-[1240px] mx-auto flex items-center justify-between px-4 py-0">
                 <img src="/logo.png" alt="logo" className="h-16 w-16 object-contain flex-shrink-0"></img>
 

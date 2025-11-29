@@ -1,34 +1,24 @@
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-
+import instance from "../../../api/axiosInstance.js";
 
 export default function Carousel() {
-    const SLIDES_DATA = [
-        {
-            id: 1,
-            title: "abc",
-            description: "abc",
-            buttonUrl: "/compilations/abc",
-            backgroundUrl: "https://wallpaper.forfun.com/fetch/60/60f6eb528ccf3eb88adac465adb45cde.jpeg"
-        },
-        {
-            id: 2,
-            title: "def",
-            description: "abc",
-            buttonUrl: "/compilations/abc",
-            backgroundUrl: "https://wallpaper.forfun.com/fetch/60/60f6eb528ccf3eb88adac465adb45cde.jpeg"
-        },
-        {
-            id: 3,
-            title: "ghi",
-            description: "abc",
-            buttonUrl: "/compilations/abc",
-            backgroundUrl: "https://wallpaper.forfun.com/fetch/60/60f6eb528ccf3eb88adac465adb45cde.jpeg"
-        }
-    ];
-
+    const [slidesData, setSlidesData] = useState([]);
     const [activeIndex, setActiveIndex] = useState(0);
-    const totalSlides = SLIDES_DATA.length;
+    const totalSlides = slidesData.length;
+
+    useEffect(() => {
+        const fetchSlides = async () => {
+            try {
+                const response = await instance.get("/media/now-playing");
+                const filteredSlides = response.data.filter(slide => slide.posterUrl);
+                setSlidesData(filteredSlides);
+            } catch (e) {
+                console.error("Failed to load carousel", e);
+            }
+        }
+        fetchSlides();
+    }, [])
 
     const goToPrevSlide = () => {
         setActiveIndex((prevIndex) => prevIndex === 0 ? totalSlides - 1 : prevIndex - 1);
@@ -43,68 +33,95 @@ export default function Carousel() {
     }
 
     useEffect(() => {
-        const interval = setInterval(goToNextSlide, 3000);
-        return () => clearInterval(interval);
-    }, [activeIndex]);
+        if (totalSlides > 0) {
+            const interval = setInterval(goToNextSlide, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [activeIndex, totalSlides]);
 
-    const currentSlide = SLIDES_DATA[activeIndex];
+    const currentSlide = slidesData[activeIndex];
+
+    if (!currentSlide) {
+        return (
+            <div className="h-[650px] md:h-[80vh] w-full bg-[#191825] flex items-center justify-center text-white">
+                <div className="animate-pulse">Загрузка...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="relative h-[650px] md:h-[80vh] w-full bg-black overflow-hidden">
-            <img src={currentSlide.backgroundUrl}
-                 alt={currentSlide.description}
-                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-90"/>
+        <div className="relative h-[650px] md:h-[80vh] w-full bg-[#191825] overflow-hidden group">
 
-            <div
-                className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#191825] to-transparent z-10"></div>
+            <div className="absolute inset-0">
+                <img
+                    src={currentSlide.posterUrl}
+                    alt={currentSlide.title}
+                    className="w-full h-full object-cover object-top transition-opacity duration-700 opacity-100"
+                />
 
-            <div
-                className="relative z-10 max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-center px-4 pt-16">
-                <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 animate-fade-in-up">
-                    {currentSlide.title}
-                </h1>
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#191825] via-[#191825]/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#191825]/90 via-transparent to-transparent"></div>
+            </div>
 
-                <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl">
-                    {currentSlide.description}
-                </p>
+            <div className="absolute inset-0 flex items-center ml-8 md:items-end justify-start px-6 md:px-16 pb-12 md:pb-24 z-20">
+                <div className="max-w-2xl w-full animate-fade-in-up">
 
-                <Link className="bg-[#5B7FFF] text-white py-4 px-10 rounded-xl text-xl font-bold uppercase
-                tracking-wider hover:bg-[#4a6cd6] transition duration-300 shadow-2xl shadow-blue-500/50"
-                      to={currentSlide.buttonUrl}>
-                    смотреть
-                </Link>
+                    <h1 className="text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-lg leading-tight">
+                        {currentSlide.title}
+                    </h1>
+
+                    <p className="text-base md:text-lg text-gray-200 mb-8 font-medium drop-shadow-md line-clamp-3 md:line-clamp-4 leading-relaxed">
+                        {currentSlide.description}
+                    </p>
+
+                    <div className="flex items-center gap-4">
+                        <Link
+                            to={`/${currentSlide.mediaType.toLowerCase()}/${currentSlide.mediaId}`}
+                            className="bg-[#5B7FFF] text-white py-3 px-8 rounded-lg text-lg font-bold
+                                     hover:bg-[#4a6cd6] transition duration-300 shadow-lg shadow-blue-500/30
+                                     flex items-center gap-2 transform hover:scale-105 active:scale-95"
+                        >
+                            <span className="material-symbols-outlined">play_arrow</span>
+                            Смотреть
+                        </Link>
+                    </div>
+                </div>
             </div>
 
             <button
-                className="absolute left-6 top-1/2 transform -translate-y-1/2 p-4 rounded-full bg-white/20 text-white hover:bg-white/40 transition z-20 hidden md:block"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white
+                           hover:bg-[#5B7FFF] transition opacity-0 group-hover:opacity-100 z-30 hidden md:block"
                 onClick={goToPrevSlide}
-                aria-label="Предыдущий слайд">
-                &lsaquo;
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
             </button>
 
             <button
-                className="absolute right-6 top-1/2 transform -translate-y-1/2 p-4 rounded-full bg-white/20 text-white hover:bg-white/40 transition z-20 hidden md:block"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white
+                           hover:bg-[#5B7FFF] transition opacity-0 group-hover:opacity-100 z-30 hidden md:block"
                 onClick={goToNextSlide}
-                aria-label="Следующйи слайд">
-                &rsaquo;
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
             </button>
 
-            <div className="absolute bottom-8 w-full flex justify-center space-x-3 z-20">
-                {SLIDES_DATA.map((_, index) => (
-                    <button className={`
-                            w-3 h-3 rounded-full transition duration-300
-                            ${
-                        index === activeIndex
-                            ? 'bg-[#5B7FFF] scale-125' : 'bg-white/50 hover:bg-white/80'
-                    }
-                        `}
-                            key={index}
-                            onClick={() => goToSlide(index)}
-                            aria-label="Перейти к слайду ${index + 1}"/>
+            <div className="absolute right-8 bottom-8 md:bottom-12 flex space-x-2 z-30">
+                {slidesData.map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => goToSlide(index)}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                            index === activeIndex ? 'w-8 bg-[#5B7FFF]' : 'w-4 bg-gray-500/50 hover:bg-gray-400'
+                        }`}
+                        aria-label={`Слайд ${index + 1}`}
+                    />
                 ))}
             </div>
 
         </div>
-
     )
 }
