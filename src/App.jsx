@@ -10,6 +10,7 @@ import CompilationPage from "./pages/SelectionPage.jsx";
 import {useEffect} from "react";
 import {setupInterceptors} from "./api/axiosInstance.js";
 import {useToast} from "./context/ToastContext.jsx";
+import CategoryPage from "./pages/CategoryPage.jsx";
 
 // Go to hash
 function ScrollToHash() {
@@ -48,6 +49,7 @@ function App() {
                     <Route path="/compilations" element={<CompilationsPage />}></Route>
                     <Route path="/profile/:username" element={<ProfilePage />}></Route>
                     <Route path="/compilation/:id" element={<CompilationPage />} />
+                    <Route path="/category/:categoryId" element={<CategoryPage />} />
                     {/*<Route path="PrivacyPolicy" element={<PrivacyPolicy />}></Route>*/}
                     {/*<Route path="*" element={<NotFoundPage />}></Route>*/}
                 </Routes>
