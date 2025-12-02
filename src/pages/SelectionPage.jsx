@@ -78,7 +78,7 @@ const dummyCompilation = {
 
 export default function CompilationPage() {
     const [compilation, setCompilation] = useState(null);
-    const { id } = useParams(); // Получаем ID подборки из URL
+    const { id } = useParams();
 
     useEffect(() => {
         setCompilation(dummyCompilation);

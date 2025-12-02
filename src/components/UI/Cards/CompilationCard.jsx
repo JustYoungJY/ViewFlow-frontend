@@ -76,11 +76,11 @@ export default function CompilationCard({collection, onTagClick}) {
                         <div className="flex gap-2 flex-wrap pt-2">
                             {tags.map(tag => (
                                 <div
-                                    key={tag}
+                                    key={tag.id}
                                     onClick={(e) => handleTagClickInternal(e, tag)}
                                     className="flex h-7 shrink-0 items-center justify-center rounded-full bg-[#4B5563] px-3 text-xs font-medium text-[#E5E7EB] cursor-pointer hover:bg-[#5B7FFF]"
                                 >
-                                    {tag}
+                                    {tag.name}
                                 </div>
                             ))}
                         </div>
