@@ -3,9 +3,6 @@ import SearchResultsDropdown from "../UI/Search/SearchResultsDropdown.jsx";
 import instance from "../../api/axiosInstance.js";
 
 
-// Search Results Dropdown Component
-
-
 export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
     const initialFormData = {
         title: '',

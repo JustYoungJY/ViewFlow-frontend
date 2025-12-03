@@ -1,7 +1,7 @@
 import {useState} from 'react';
 
 
-export default function CompilationMovieItem({movie, authorNote}) {
+export default function CompilationMovieItem({movie, authorNote, isOwner, onEditClick}) {
     const [openSection, setOpenSection] = useState(null);
     const [isMovieFavorite, setIsMovieFavorite] = useState(false);
 
@@ -9,7 +9,7 @@ export default function CompilationMovieItem({movie, authorNote}) {
         setOpenSection(prev => (prev === section ? null : section));
     };
 
-    const handleToggleMovieFavorite = () => { // <--- Новый обработчик
+    const handleToggleMovieFavorite = () => {
         setIsMovieFavorite(prev => !prev);
         // Save to DB
     };
@@ -45,7 +45,9 @@ export default function CompilationMovieItem({movie, authorNote}) {
             <div className="flex-grow">
                 <h3 className="text-3xl font-bold text-white">{movie.title}</h3>
                 <p className="text-sm text-[#A6A4B0] mt-2">
-                    {movie.year} • {movie.duration} • {movie.genres.join(' • ')}
+                    {movie.year ? `${movie.year} год` : ''}{movie.year && (movie.duration || movie.genres.length > 0) ? ' • ' : ''}
+                    {movie.duration ? `${movie.duration} минут` : ''}{movie.duration && movie.genres.length > 0 ? ' • ' : ''}
+                    {movie.genres.join(' • ')}
                 </p>
                 <p className="mt-4 text-gray-300 text-base leading-relaxed">
                     {movie.description}
@@ -53,9 +55,9 @@ export default function CompilationMovieItem({movie, authorNote}) {
 
                 {/* additional information */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-6 pt-4 border-t border-[#2D2A4A]">
-                    <InfoDetail label="Страна" value={movie.details.country}/>
-                    <InfoDetail label="Режиссер" value={movie.details.director}/>
-                    <InfoDetail label="Бюджет" value={movie.details.budget}/>
+                    {movie.details.country && (<InfoDetail label="Страна" value={movie.details.country}/>)}
+                    {movie.details.director && (<InfoDetail label="Режиссер" value={movie.details.director}/>)}
+                    {movie.details.budget && (<InfoDetail label="Бюджет" value={movie.details.budget}/>)}
                 </div>
 
                 {/* Buttons "Трейлер" and "Описание" */}
@@ -66,7 +68,7 @@ export default function CompilationMovieItem({movie, authorNote}) {
                         onClick={() => handleToggle('trailer')}
                         isActive={isTrailerOpen}
                     />
-                    {authorNote && (
+                    {(authorNote || isOwner) && (
                         <ActionButton
                             icon="description"
                             text="Описание автора"
@@ -93,9 +95,29 @@ export default function CompilationMovieItem({movie, authorNote}) {
                     )}
 
                     {/* Author's description */}
-                    {isAuthorNoteOpen && (
-                        <div className="bg-black/20 border border-[#2D2A4A] p-6 rounded-lg">
-                            <p className="text-[#A6A4B0] italic leading-relaxed">{authorNote}</p>
+                    {(isAuthorNoteOpen) && (
+                        <div className="bg-black/20 border border-[#2D2A4A] pb-6 pl-6 pt-2 rounded-lg">
+                            <div className="flex justify-between items-start mb-4">
+                                {/* Edit button only for owner */}
+                                {isOwner && (
+                                    <button
+                                        onClick={onEditClick}
+                                        className="text-[#5B7FFF] hover:text-white transition-colors"
+                                        title="Редактировать заметку"
+                                    >
+                                        <span className="material-symbols-outlined text-xl">edit</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Author`s text */}
+                            {authorNote ? (
+                                <p className="text-[#A6A4B0] italic leading-relaxed whitespace-pre-wrap">{authorNote}</p>
+                            ) : (
+                                <p className="text-gray-500 italic">
+                                    {isOwner ? "Нажмите на карандаш, чтобы добавить заметку." : "Автор не оставил заметки к этому фильму."}
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>

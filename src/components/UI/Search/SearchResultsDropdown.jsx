@@ -1,5 +1,7 @@
 
 
+
+
 export default function SearchResultsDropdown ({ searchResults, dropdownRef, handleSelectMedia }) {
     // Interleave movies and TV shows
     const movies = searchResults.filter(item => item.mediaType === 'MOVIE');
