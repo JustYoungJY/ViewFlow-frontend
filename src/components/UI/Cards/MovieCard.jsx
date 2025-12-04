@@ -13,7 +13,7 @@ export default function MovieCard({ movie }) {
 
     return (
         <Link
-            to={`/movie/${movie.mediaId}`}
+            to={`/${movie.mediaType.toLowerCase()}/${movie.mediaId}`}
             className="group relative flex flex-col h-full bg-[#191825] rounded-xl overflow-hidden shadow-lg border border-white/5 hover:border-white/10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
         >
             {/* An image container with a fixed aspect ratio 2:3 */}

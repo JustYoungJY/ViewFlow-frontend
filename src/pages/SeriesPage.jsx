@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import MovieHeader from "../components/Content/Headers/MovieHeader.jsx";
+import SeriesHeader from "../components/Content/Headers/SeriesHeader.jsx";
 import VideoPlayer from "../components/UI/Video/VideoPlayer.jsx";
 import Comment from "../components/UI/Comment/Comment.jsx";
 import HorizontalRow from "../components/Content/Sliders/HorizontalRow.jsx";
@@ -9,36 +9,37 @@ import { useToast } from '../context/ToastContext.jsx';
 import StarRating from "../components/UI/Ratings/StarRating.jsx";
 import PlatformLink from "../components/UI/Links/PlatformLink.jsx";
 
-export default function MoviePage() {
+export default function SeriesPage() {
     const { id } = useParams();
-    const movieId = id;
+    const seriesId = id;
 
-    const [movie, setMovie] = useState(null);
-    const [similarMovies, setSimilarMovies] = useState(null)
-    const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU'); // Трейлер Матрицы
-    const [filmUrl, setFilmUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ'); // Заглушка
+    const [series, setSeries] = useState(null);
+    const [similarSeries, setSimilarSeries] = useState(null)
+    const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU');
+    const [filmUrl, setFilmUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ');
     const [commentRating, setCommentRating] = useState(0);
     const { showToast } = useToast();
 
-    // States for Comment
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [movieId]);
+    const MEDIA_TYPE = "TV";
 
     useEffect(() => {
-        const fetchMovie = async () => {
+        window.scrollTo(0, 0);
+    }, [seriesId]);
+
+    useEffect(() => {
+        const fetchSeries = async () => {
             const response = await instance.get("/media", {
-                params: {mediaId: movieId, mediaType: "MOVIE"}
+                params: {mediaId: seriesId, mediaType: MEDIA_TYPE}
             })
 
             const data = response.data
 
-            const formattedMovie = {
+            const formattedSeries = {
                 title: data.title,
                 year: data.releaseYear,
                 directors: data.directors,
@@ -50,10 +51,11 @@ export default function MoviePage() {
                     : "https://via.placeholder.com/500x750",
                 country: data.country,
                 genres: data.genres,
-                budget: data.budget,
+                seasons: data.numberOfSeasons,
+                episodes: data.numberOfEpisodes,
             }
 
-            setMovie(formattedMovie);
+            setSeries(formattedSeries);
 
             if (data.trailerYoutubeId) {
                 setTrailerUrl(`https://www.youtube.com/embed/${data.trailerYoutubeId}`);
@@ -62,37 +64,37 @@ export default function MoviePage() {
             }
         }
 
-        if(movieId) {
-            fetchMovie();
+        if(seriesId) {
+            fetchSeries();
         }
-    }, [movieId]);
+    }, [seriesId]);
 
 
     useEffect(() => {
 
-        const fetchSimilarMovies = async () => {
+        const fetchSimilarSeries = async () => {
             const response = await instance.get("/media/similar", {
-                params: {mediaId: movieId, mediaType: "MOVIE"}
+                params: {mediaId: seriesId, mediaType: MEDIA_TYPE}
             })
 
             const data = response.data;
-            // Add mediaType property to each movie
-            const moviesWithType = data.map(movie => ({
-                ...movie,
-                mediaType: "MOVIE"
+            // Add mediaType property to each series
+            const seriesWithType = data.map(series => ({
+                ...series,
+                mediaType: MEDIA_TYPE
             }));
-            setSimilarMovies(moviesWithType)
+            setSimilarSeries(seriesWithType)
         }
 
-        if(movie) {
-            fetchSimilarMovies();
+        if(series) {
+            fetchSimilarSeries();
         }
 
-    }, [movieId, movie]);
+    }, [seriesId, series]);
 
 
     const fetchComments = async (page = 0) => {
-        const response = await instance.get(`/comments/media/${movieId}/MOVIE`, {
+        const response = await instance.get(`/comments/media/${seriesId}/${MEDIA_TYPE}`, {
             params: {
                 page: page,
                 size: 5,
@@ -122,8 +124,8 @@ export default function MoviePage() {
         }
 
         const payload = {
-            mediaId: Number(movieId),
-            mediaType: "MOVIE",
+            mediaId: Number(seriesId),
+            mediaType: MEDIA_TYPE,
             stars: commentRating,
             content: commentText.trim(),
         };
@@ -137,17 +139,18 @@ export default function MoviePage() {
 
 
     useEffect(() => {
-        if(movieId) {
+        if(seriesId) {
             fetchComments(currentPage);
         }
-    }, [movieId, currentPage]);
+    }, [seriesId, currentPage]);
 
-    if (!movie) return <div className="text-white">Загрузка...</div>;
+    if (!series) return <div className="text-white">Загрузка...</div>;
 
     return (
         <div className="min-h-screen bg-[#191825] text-white">
 
-            <MovieHeader movie={movie} />
+            {/* Header */}
+            <SeriesHeader series={series} />
 
             <div className="max-w-7xl mx-auto px-4 py-8">
 
@@ -161,28 +164,29 @@ export default function MoviePage() {
                             <div className="flex flex-col gap-3">
                                 <PlatformLink name="Netflix" />
                                 <PlatformLink name="Кинопоиск HD" />
+                                <PlatformLink name="Amediateka" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#F59E0B] bg-[#F59E0B]/10 shadow-lg">
                             <h3 className="font-bold text-2xl text-white">Нелегально</h3>
                             <div className="flex flex-col gap-3">
                                 <PlatformLink name="HDRezka" />
-                                <PlatformLink name="LordFilm" />
+                                <PlatformLink name="SeasonVar" />
                             </div>
                         </div>
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#5B7FFF] bg-[#5B7FFF]/10 shadow-lg">
                             <h3 className="font-bold text-2xl text-white">Торрент</h3>
                             <div className="flex flex-col gap-3">
                                 <PlatformLink name="Rutracker" buttonText="Скачать" />
-                                <PlatformLink name="1337x" buttonText="Magnet" />
+                                <PlatformLink name="Rutor" buttonText="Magnet" />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                { similarMovies && (
+                { similarSeries && (
                     <section className="mt-16 w-full">
-                        <HorizontalRow title="Похожие фильмы" movies={similarMovies} />
+                        <HorizontalRow title="Похожие сериалы" movies={similarSeries} />
                     </section>
                 )}
 
@@ -193,7 +197,7 @@ export default function MoviePage() {
                         <div className="flex flex-col gap-4">
                             <textarea
                                 className="w-full bg-[#121212] border border-[#2D2A4A] rounded-lg p-4 text-white placeholder-[#A6A4B0] focus:ring-[#5B7FFF] focus:border-[#5B7FFF] transition"
-                                placeholder="Напишите ваш комментарий..."
+                                placeholder="Напишите ваш комментарий к сериалу..."
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}
                                 required

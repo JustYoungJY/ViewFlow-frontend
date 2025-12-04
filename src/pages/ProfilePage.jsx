@@ -93,7 +93,6 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchFavorites = async () => {
             try {
-                // Бэк возвращает Page, берем content
                 const response = await instance.get('/favorites/media');
                 setFavoriteMedia(response.data.content || []);
                 setIsLoading(prev => ({ ...prev, favorites: false }));
@@ -110,7 +109,6 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchWatched = async () => {
             try {
-                // Бэк возвращает Page, берем content
                 const response = await instance.get('/watched');
                 setWatchedMedia(response.data.content || []);
                 setIsLoading(prev => ({ ...prev, watched: false }));
@@ -180,6 +178,7 @@ export default function ProfilePage() {
 
                 const transformToCard = (item) => ({
                     mediaId: item.mediaId,
+                    mediaType: item.mediaType,
                     title: item.mediaDetails?.title || 'Без названия',
                     posterUrl: item.mediaDetails?.posterPath || '',
                     year: item.mediaDetails?.releaseYear || '',

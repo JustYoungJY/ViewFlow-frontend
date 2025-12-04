@@ -11,6 +11,7 @@ export default function CatalogPage() {
         {
             id: 1,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -24,6 +25,7 @@ export default function CatalogPage() {
         {
             id: 2,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -37,6 +39,7 @@ export default function CatalogPage() {
         {
             id: 3,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -50,6 +53,7 @@ export default function CatalogPage() {
         {
             id: 4,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -63,6 +67,7 @@ export default function CatalogPage() {
         {
             id: 5,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -78,6 +83,7 @@ export default function CatalogPage() {
             title: "Матрица",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
+            mediaType: "movie",
             genre: "fantastic",
             rating: 8.7,
             country: "USA",
@@ -89,6 +95,7 @@ export default function CatalogPage() {
         {
             id: 7,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "fantastic",
@@ -102,6 +109,7 @@ export default function CatalogPage() {
         {
             id: 8,
             title: "Матрица",
+            mediaType: "movie",
             posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
             year: 1999,
             genre: "drama",
@@ -118,6 +126,7 @@ export default function CatalogPage() {
     const topWeek = [
         {
             id: 1,
+            mediaType: "movie",
             title: "Интерстеллар",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
@@ -127,6 +136,7 @@ export default function CatalogPage() {
         {
             id: 2,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -135,6 +145,7 @@ export default function CatalogPage() {
         {
             id: 3,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -143,6 +154,7 @@ export default function CatalogPage() {
         {
             id: 4,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -151,6 +163,7 @@ export default function CatalogPage() {
         {
             id: 5,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -159,6 +172,7 @@ export default function CatalogPage() {
         {
             id: 6,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -167,6 +181,7 @@ export default function CatalogPage() {
         {
             id: 7,
             title: "Интерстеллар",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
             year: 2014,
             genre: "fantastic",
@@ -178,6 +193,7 @@ export default function CatalogPage() {
         {
             id: 1,
             title: "Оппенгеймер",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
             year: 2023,
             genre: "drama",
@@ -186,6 +202,7 @@ export default function CatalogPage() {
         {
             id: 2,
             title: "Оппенгеймер",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
             year: 2023,
             genre: "drama",
@@ -194,6 +211,7 @@ export default function CatalogPage() {
         {
             id: 3,
             title: "Оппенгеймер",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
             year: 2023,
             genre: "drama",
@@ -202,6 +220,7 @@ export default function CatalogPage() {
         {
             id: 4,
             title: "Оппенгеймер",
+            mediaType: "movie",
             posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
             year: 2023,
             genre: "drama",

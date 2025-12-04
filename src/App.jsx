@@ -11,6 +11,7 @@ import {useEffect} from "react";
 import {setupInterceptors} from "./api/axiosInstance.js";
 import {useToast} from "./context/ToastContext.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
+import SeriesPage from "./pages/SeriesPage.jsx";
 
 // Go to hash
 function ScrollToHash() {
@@ -50,6 +51,7 @@ function App() {
                     <Route path="/profile/:username" element={<ProfilePage />}></Route>
                     <Route path="/compilation/:id" element={<SelectionPage />} />
                     <Route path="/category/:categoryId" element={<CategoryPage />} />
+                    <Route path="/tv/:id" element={<SeriesPage/>} />
                     {/*<Route path="PrivacyPolicy" element={<PrivacyPolicy />}></Route>*/}
                     {/*<Route path="*" element={<NotFoundPage />}></Route>*/}
                 </Routes>
