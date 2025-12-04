@@ -40,6 +40,8 @@ export default function SeriesPage() {
             const data = response.data
 
             const formattedSeries = {
+                mediaId: Number(seriesId),
+                mediaType: MEDIA_TYPE,
                 title: data.title,
                 year: data.releaseYear,
                 directors: data.directors,

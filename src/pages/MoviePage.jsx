@@ -39,6 +39,8 @@ export default function MoviePage() {
             const data = response.data
 
             const formattedMovie = {
+                mediaId: Number(movieId),
+                mediaType: "MOVIE",
                 title: data.title,
                 year: data.releaseYear,
                 directors: data.directors,

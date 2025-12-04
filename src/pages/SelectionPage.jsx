@@ -49,7 +49,6 @@ export default function SelectionPage() {
                     ...item,
                     mediaDetails: {
                         ...item.mediaDetails,
-                        // Исправляем путь к постеру, если он относительный
                         posterUrl: item.mediaDetails.posterPath
                             ? (item.mediaDetails.posterPath.startsWith('http')
                                 ? item.mediaDetails.posterPath
@@ -186,6 +185,7 @@ export default function SelectionPage() {
                     title={compilation.title}
                     imageUrl={compilation.imageUrl}
                     tags={compilation.tags}
+                    compilationId={id}
                     user={{
                         username: "Пользователь #" + compilation.viewerId,
                         avatarUrl: "https://via.placeholder.com/150"
@@ -279,6 +279,7 @@ export default function SelectionPage() {
                                                         <CompilationMovieItem
                                                             movie={{
                                                                 id: item.mediaId,
+                                                                mediaType: item.mediaType,
                                                                 title: item.mediaDetails.title,
                                                                 posterUrl: item.mediaDetails.posterUrl,
                                                                 year: item.mediaDetails.releaseYear,

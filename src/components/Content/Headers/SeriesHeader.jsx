@@ -1,8 +1,15 @@
 import RatingBlock from "../RatingBlock.jsx";
+import { useState, useEffect } from 'react';
+import instance from "../../../api/axiosInstance.js";
+import { useToast } from '../../../context/ToastContext.jsx';
 
 export default function SeriesHeader({ series }) {
+    const [isFavorite, setIsFavorite] = useState(false);
+    const { showToast } = useToast();
 
     const {
+        mediaId,
+        mediaType,
         title,
         year,
         description,
@@ -17,6 +24,39 @@ export default function SeriesHeader({ series }) {
     } = series;
 
     const directorsString = directors && directors.length > 0 ? directors.join(", ") : null;
+
+    // Check if series is in favorites
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            try {
+                const response = await instance.get("/favorites/media/status", {
+                    params: { mediaId, mediaType }
+                });
+                setIsFavorite(response.data);
+            } catch (error) {
+                console.error("Error checking favorite status:", error);
+            }
+        };
+
+        if (mediaId) {
+            checkFavoriteStatus();
+        }
+    }, [mediaId, mediaType]);
+
+    const toggleFavorite = async () => {
+        try {
+            await instance.post("/favorites/media", {
+                mediaId,
+                mediaType
+            });
+
+            setIsFavorite(!isFavorite);
+            showToast(isFavorite ? "Удалено из коллекции" : "Добавлено в коллекцию", "success");
+        } catch (error) {
+            console.error("Error toggling favorite status:", error);
+            showToast("Ошибка при обновлении коллекции", "error");
+        }
+    };
 
     // Formatted word "сезон"
     const getSeasonString = (n) => {
@@ -67,8 +107,13 @@ export default function SeriesHeader({ series }) {
                         alt={title}
                     />
                     <button
-                        className="w-full px-6 py-3 rounded-lg font-semibold text-white transition shadow-lg bg-gradient-to-r from-[#5B7FFF] to-[#A259FF] hover:opacity-90">
-                        В коллекцию
+                        onClick={toggleFavorite}
+                        className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition shadow-lg ${
+                            isFavorite 
+                            ? "bg-gradient-to-r from-[#FF6B6B] to-[#FF9F9F] hover:opacity-90" 
+                            : "bg-gradient-to-r from-[#5B7FFF] to-[#A259FF] hover:opacity-90"
+                        }`}>
+                        {isFavorite ? "Удалить из коллекции" : "В коллекцию"}
                     </button>
                 </div>
 

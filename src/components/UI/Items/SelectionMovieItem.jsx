@@ -1,17 +1,50 @@
-import {useState} from 'react';
-
+import {useState, useEffect} from 'react';
+import instance from '../../../api/axiosInstance.js';
+import { useToast } from '../../../context/ToastContext.jsx';
 
 export default function CompilationMovieItem({movie, authorNote, isOwner, onEditClick}) {
     const [openSection, setOpenSection] = useState(null);
     const [isMovieFavorite, setIsMovieFavorite] = useState(false);
+    const { showToast } = useToast();
+
+    const mediaId = movie.id;
+    const mediaType = movie.mediaType || (movie.title.includes("сезон") ? "TV" : "MOVIE");
+
+    // Check if movie is in favorites
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            try {
+                const response = await instance.get("/favorites/media/status", {
+                    params: { mediaId, mediaType }
+                });
+                setIsMovieFavorite(response.data);
+            } catch (error) {
+                console.error("Error checking favorite status:", error);
+            }
+        };
+
+        if (mediaId) {
+            checkFavoriteStatus();
+        }
+    }, [mediaId, mediaType]);
 
     const handleToggle = (section) => {
         setOpenSection(prev => (prev === section ? null : section));
     };
 
-    const handleToggleMovieFavorite = () => {
-        setIsMovieFavorite(prev => !prev);
-        // Save to DB
+    const handleToggleMovieFavorite = async () => {
+        try {
+            await instance.post("/favorites/media", {
+                mediaId,
+                mediaType
+            });
+
+            setIsMovieFavorite(!isMovieFavorite);
+            showToast(isMovieFavorite ? "Удалено из избранного" : "Добавлено в избранное", "success");
+        } catch (error) {
+            console.error("Error toggling favorite status:", error);
+            showToast("Ошибка при обновлении избранного", "error");
+        }
     };
 
     const isTrailerOpen = openSection === 'trailer';

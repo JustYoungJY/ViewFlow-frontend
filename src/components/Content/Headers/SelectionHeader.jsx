@@ -1,11 +1,39 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
+import instance from "../../../api/axiosInstance.js";
+import { useToast } from "../../../context/ToastContext.jsx";
 
-
-export default function SelectionHeader({title, imageUrl, tags}) {
+export default function SelectionHeader({title, imageUrl, tags, compilationId}) {
     const [isFavorite, setIsFavorite] = useState(false);
+    const { showToast } = useToast();
 
-    const handleToggleFavorite = () => {
-        setIsFavorite(prev => !prev);
+    // Check if compilation is liked
+    useEffect(() => {
+        const checkLikeStatus = async () => {
+            try {
+                const response = await instance.get(`/compilations/${compilationId}/status`);
+                setIsFavorite(response.data);
+            } catch (error) {
+                console.error("Error checking like status:", error);
+            }
+        };
+
+        if (compilationId) {
+            checkLikeStatus();
+        }
+    }, [compilationId]);
+
+    const handleToggleFavorite = async () => {
+        try {
+            // Toggle like status with POST request
+            await instance.post(`/compilations/${compilationId}/like`);
+
+            // Update local state
+            setIsFavorite(!isFavorite);
+            showToast(isFavorite ? "Удалено из избранного" : "Добавлено в избранное", "success");
+        } catch (error) {
+            console.error("Error toggling like status:", error);
+            showToast("Ошибка при обновлении избранного", "error");
+        }
     };
 
     return (
@@ -29,12 +57,12 @@ export default function SelectionHeader({title, imageUrl, tags}) {
 
 
                 <div className="flex flex-wrap justify-center gap-3 mt-6">
-                    {tags.map(tag => (
+                    {tags && tags.map(tag => (
                         <span
-                            key={tag}
+                            key={tag.id || tag}
                             className="bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 text-sm font-medium"
                         >
-                            {tag}
+                            {tag.name || tag}
                         </span>
                     ))}
                 </div>

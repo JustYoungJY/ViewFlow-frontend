@@ -1,21 +1,50 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {Link} from 'react-router-dom';
+import instance from '../../../api/axiosInstance.js';
+import { useToast } from '../../../context/ToastContext.jsx';
 
 export default function CompilationCard({collection, onTagClick}) {
     const {id, title, imageUrl, user, movieCount, tags, height} = collection;
     const [likes, setLikes] = useState(collection.likes);
     const [isLiked, setIsLiked] = useState(false);
+    const { showToast } = useToast();
 
-    const handleLikeClick = (e) => {
+    // Check if compilation is liked
+    useEffect(() => {
+        const checkLikeStatus = async () => {
+            try {
+                const response = await instance.get(`/compilations/${id}/status`);
+                setIsLiked(response.data);
+            } catch (error) {
+                console.error("Error checking like status:", error);
+            }
+        };
+
+        checkLikeStatus();
+    }, [id]);
+
+    const handleLikeClick = async (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        if (isLiked) {
-            setLikes(prev => prev - 1);
-        } else {
-            setLikes(prev => prev + 1);
+        try {
+            // Toggle like status with POST request
+            await instance.post(`/compilations/${id}/like`);
+
+            // Update local state
+            if (isLiked) {
+                setLikes(prev => prev - 1);
+                setIsLiked(false);
+                showToast("Лайк удален", "success");
+            } else {
+                setLikes(prev => prev + 1);
+                setIsLiked(true);
+                showToast("Лайк добавлен", "success");
+            }
+        } catch (error) {
+            console.error("Error toggling like status:", error);
+            showToast("Ошибка при обновлении лайка", "error");
         }
-        setIsLiked(prev => !prev);
     };
 
     const handleTagClickInternal = (e, tag) => {
