@@ -4,324 +4,155 @@ import SortSelector from "../components/UI/Filter/SortSelector.jsx";
 import MovieGrid from "../components/Content/Grids/MovieGrid.jsx";
 import FilterPanel from "../components/UI/Filter/FilterPanel.jsx";
 import HorizontalRow from "../components/Content/Sliders/HorizontalRow.jsx";
-
+import instance from "../api/axiosInstance.js";
 
 export default function CatalogPage() {
-    const catalogMovies = [
-        {
-            id: 1,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 2,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 3,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 4,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 5,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 6,
-            title: "Матрица",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            mediaType: "movie",
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 7,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "fantastic",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-        {
-            id: 8,
-            title: "Матрица",
-            mediaType: "movie",
-            posterUrl: "https://cdn.ananasposter.ru/image/cache/catalog/poster/film/95/2777-1000x830.jpg",
-            year: 1999,
-            genre: "drama",
-            rating: 8.7,
-            country: "USA",
-            language: "English",
-            platforms: ["Netflix"],
-            popularity: 95,
-            type: "movie",
-        },
-    ];
+    const [movies, setMovies] = useState([]);
+    const [availableGenres, setAvailableGenres] = useState([]);
+    const [availableCountries, setAvailableCountries] = useState([]);
 
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalPages, setTotalPages] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
 
-    const topWeek = [
-        {
-            id: 1,
-            mediaType: "movie",
-            title: "Интерстеллар",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 2,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 3,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 4,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 5,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 6,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        },
-        {
-            id: 7,
-            title: "Интерстеллар",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/1600647/430042eb-ee69-4818-aed0-a312400a26bf/600x900",
-            year: 2014,
-            genre: "fantastic",
-            rating: 8.6,
-        }
-    ];
-
-    const newReleases = [
-        {
-            id: 1,
-            title: "Оппенгеймер",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
-            year: 2023,
-            genre: "drama",
-            rating: 8.4,
-        },
-        {
-            id: 2,
-            title: "Оппенгеймер",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
-            year: 2023,
-            genre: "drama",
-            rating: 8.4,
-        },
-        {
-            id: 3,
-            title: "Оппенгеймер",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
-            year: 2023,
-            genre: "drama",
-            rating: 8.4,
-        },
-        {
-            id: 4,
-            title: "Оппенгеймер",
-            mediaType: "movie",
-            posterUrl: "https://avatars.mds.yandex.net/get-kinopoisk-image/4486454/c5292109-642c-4ab0-894a-cc304e1bcec4/600x900",
-            year: 2023,
-            genre: "drama",
-            rating: 8.4,
-        }
-    ];
-
-
-
-    const [filteredMovies, setFilteredMovies] = useState(catalogMovies);
-    const [sortBy, setSortBy] = useState('rating');
-    const [sortDirection, setSortDirection] = useState('desc');
     const [filters, setFilters] = useState({
-        type: 'any',
-        genre: '',
-        minYear: 1950,
-        maxYear: 2025,
-        minRating: 0,
-        maxRating: 10,
-        country: '',
-        language: '',
-        platform: '',
+        mediaType: 'MOVIE',
+        genreId: null,
+        countryId: null,
+        yearFrom: 1950,
+        yearTo: 2025,
+        ratingFrom: 0,
+        ratingTo: 10,
     });
 
+    const [sortConfig, setSortConfig] = useState({
+        order: 'RATING',
+        direction: 'desc'
+    });
+
+    // Loading Genres and Countries
     useEffect(() => {
-        let movies = [...catalogMovies];
-
-        if (filters.type !== 'any') {
-            movies = movies.filter(movie => movie.type === filters.type);
-        }
-
-        if (filters.genre) {
-            movies = movies.filter(movie => movie.genre === filters.genre);
-        }
-
-        movies = movies.filter(movie => movie.year >= filters.minYear && movie.year <= filters.maxYear);
-        movies = movies.filter(movie => movie.rating >= filters.minRating && movie.rating <= filters.maxRating);
-
-        if (filters.country) {
-            movies = movies.filter(movie => movie.country === filters.country);
-        }
-
-        if (filters.language) {
-            movies = movies.filter(movie => movie.language === filters.language);
-        }
-
-        if (filters.platform) {
-            movies = movies.filter(movie => movie.platforms.includes(filters.platform));
-        }
-
-        const compare = (a, b) => {
-            let valA, valB;
-
-            switch (sortBy) {
-                case 'rating':
-                    valA = a.rating; valB = b.rating; break;
-                case 'year':
-                    valA = a.year; valB = b.year; break;
-                case 'title':
-                    valA = a.title.toLowerCase(); valB = b.title.toLowerCase(); break;
-                case 'popularity':
-                    valA = a.popularity; valB = b.popularity; break;
-                default:
-                    return 0;
+        const fetchDictionaries = async () => {
+            try {
+                const [genresRes, countriesRes] = await Promise.all([
+                    instance.get('/media/genres'),
+                    instance.get('/media/countries')
+                ]);
+                setAvailableGenres(genresRes.data);
+                setAvailableCountries(countriesRes.data);
+            } catch (error) {
+                console.error("Ошибка загрузки справочников:", error);
             }
-
-            if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-            if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-            return 0;
         };
+        fetchDictionaries();
+    }, []);
 
-        movies.sort(compare);
 
-        setFilteredMovies(movies);
-    }, [filters, sortBy]);
+    useEffect(() => {
+        fetchMovies();
+    }, [filters, sortConfig, currentPage]);
+
+
+    const fetchMovies = async () => {
+        setIsLoading(true);
+        try {
+            const params = {
+                page: currentPage,
+                size: 20,
+                countryId: filters.countryId,
+                genreId: filters.genreId,
+                mediaType: filters.mediaType,
+                order: sortConfig.order,
+                ratingFrom: filters.ratingFrom,
+                ratingTo: filters.ratingTo,
+                yearFrom: filters.yearFrom,
+                yearTo: filters.yearTo,
+            };
+
+
+            Object.keys(params).forEach(key => {
+                if (params[key] === null || params[key] === undefined || params[key] === '') {
+                    delete params[key];
+                }
+            });
+
+            const response = await instance.get('/media/filtered', { params });
+
+            let items = response.data.content;
+            setMovies(items || []);
+            setTotalPages(response.data.totalPages);
+
+        } catch (error) {
+            console.error("Ошибка загрузки фильмов:", error);
+            setMovies([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     const handleFilterApply = (newFilters) => {
-        setFilters(newFilters);
+        setFilters(prev => ({...prev, ...newFilters}));
+        setCurrentPage(0);
+    };
+
+    const handleSortChange = (key, direction) => {
+        setSortConfig({order: key, direction});
+        setCurrentPage(0);
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages) {
+            setCurrentPage(newPage);
+        }
     };
 
     return (
-        <div className="bg-[#191825] min-h-screen pb-12"> {/* Добавлено bg-color и pb-12 */}
+        <div className="bg-[#191825] min-h-screen pb-12">
             <CatalogCarousel />
 
-            <h2 className="text-3xl font-bold text-white px-8 pt-20 pl-22 pb-3">Каталог фильмов</h2>
+            <h2 className="text-3xl font-bold text-white px-8 pt-20 pl-22 pb-3 max-w-7xl mx-auto">
+                Каталог медиа
+            </h2>
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
 
-                    <FilterPanel onApply={handleFilterApply} />
+                    {/* Filter panel */}
+                    <FilterPanel
+                        onApply={handleFilterApply}
+                        genres={availableGenres}
+                        countries={availableCountries}
+                    />
 
-                    <div className="flex-grow">
-                        <SortSelector sortBy={sortBy} onChange={setSortBy} />
+                    <div className="flex-grow min-w-0">
+                        {/* Sorting */}
+                        <SortSelector
+                            sortBy={sortConfig.order}
+                            onSortChange={handleSortChange}
+                        />
 
-                        <MovieGrid movies={filteredMovies} />
+                        {/* Grid */}
+                        {isLoading ? (
+                            <div className="flex justify-center py-20">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5B7FFF]"></div>
+                            </div>
+                        ) : (
+                            <MovieGrid
+                                movies={movies}
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        )}
                     </div>
                 </div>
 
-                <div className="mt-25 space-y-12">
+                {/* Sliders */}
+                <div className="mt-20 space-y-12">
+                    {/*TODO: add HorizontalRow
                     <HorizontalRow title="Топ 10 фильмов недели" movies={topWeek} />
-                    <HorizontalRow title="Новинки этого месяца" movies={newReleases} />
+                    */}
                 </div>
             </div>
         </div>

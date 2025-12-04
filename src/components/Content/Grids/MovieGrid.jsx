@@ -1,34 +1,49 @@
 import MovieCard from '../../UI/Cards/MovieCard.jsx';
-import {useState} from "react";
 
-export default function MovieGrid({movies}) {
-    const [currentPage, setCurrentPage] = useState(1);
-    const moviesPerPage = 12;
-    const indexOfLastMovie = currentPage * moviesPerPage;
-    const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-    const currentMovies = movies.slice(indexOfFirstMovie, indexOfLastMovie);
-    const totalPages = Math.ceil(movies.length / moviesPerPage);
+
+
+export default function MovieGrid({movies, currentPage, totalPages, onPageChange}) {
+
+    if (!movies || movies.length === 0) {
+        return (
+            <div className="text-center py-20 text-gray-500 text-lg">
+                По вашему запросу ничего не найдено.
+            </div>
+        );
+    }
 
     return (
         <div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {currentMovies.map(movie => (
-                    <MovieCard key={movie.id} movie={movie}/>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {movies.map(movie => (
+                    <MovieCard key={movie.mediaId} movie={movie}/>
                 ))}
             </div>
 
-            <div className="flex justify-center gap-2">
-                <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1}
-                        className="px-4 py-2 bg-[#5B7FFF] rounded disabled:opacity-50">
-                    Предыдущая
-                </button>
-                <span className="py-2 text-[#A6A4B0]">Страница {currentPage} из {totalPages}</span>
-                <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-[#5B7FFF] rounded disabled:opacity-50">
-                    Следующая
-                </button>
-            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4">
+                    <button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        disabled={currentPage === 0}
+                        className="px-5 py-2.5 bg-[#2D2A4A] text-white rounded-lg hover:bg-[#5B7FFF] disabled:opacity-50 disabled:hover:bg-[#2D2A4A] transition-colors"
+                    >
+                        Назад
+                    </button>
+
+                    <span className="text-[#A6A4B0] font-medium">
+                        Страница {currentPage + 1} из {totalPages}
+                    </span>
+
+                    <button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        disabled={currentPage >= totalPages - 1}
+                        className="px-5 py-2.5 bg-[#2D2A4A] text-white rounded-lg hover:bg-[#5B7FFF] disabled:opacity-50 disabled:hover:bg-[#2D2A4A] transition-colors"
+                    >
+                        Вперед
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
