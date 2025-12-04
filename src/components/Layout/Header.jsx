@@ -2,9 +2,14 @@ import NavLink from "../UI/Buttons/NavLink.jsx";
 import AuthButton from "../UI/Buttons/AuthButton.jsx";
 import AuthModal from "../Content/AuthModal.jsx";
 import {useState} from "react";
+import {useAuth} from "../../context/AuthContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 
 export default function Header() {
+    const { currentUser, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
     const navItems = [
         {id: 1, path: "/", label: "Главная"},
         {id: 2, path: "/catalog", label: "Каталог"},
@@ -29,6 +34,12 @@ export default function Header() {
         setIsModalOpen(false);
     }
 
+    const navigateToProfile = () => {
+        if (currentUser && currentUser.username) {
+            navigate(`/profile/${currentUser.username}`);
+        }
+    }
+
     return (
 
         <>
@@ -43,10 +54,23 @@ export default function Header() {
                         )
                     )}
                 </ul>
-                <AuthButton
-                    onLoginClick={openLogin}
-                    onRegisterClick={openRegister}
-                />
+                {isAuthenticated ? (
+                    <div 
+                        className="w-10 h-10 rounded-full overflow-hidden cursor-pointer border-2 border-[#5B7FFF] hover:border-[#A259FF] transition-all duration-300"
+                        onClick={navigateToProfile}
+                    >
+                        <img 
+                            src={currentUser.avatarUrl || "/default-avatar.jpg"}
+                            alt="User avatar" 
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                ) : (
+                    <AuthButton
+                        onLoginClick={openLogin}
+                        onRegisterClick={openRegister}
+                    />
+                )}
             </nav>
         </header>
 
