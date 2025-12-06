@@ -16,14 +16,18 @@ export default function SeriesPage() {
     const [series, setSeries] = useState(null);
     const [similarSeries, setSimilarSeries] = useState(null)
     const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU');
-    const [filmUrl, setFilmUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ');
     const [commentRating, setCommentRating] = useState(0);
+    const [isTrailer, setIsTrailer] = useState(true);
     const { showToast } = useToast();
 
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
+    const [watchProviders, setWatchProviders] = useState(null);
+    const [torrents, setTorrents] = useState([]);
+    const [zonaSeries, setZonaSeries] = useState(null);
+    const [selectedSeason, setSelectedSeason] = useState(1);
 
     const MEDIA_TYPE = "TV";
 
@@ -42,6 +46,7 @@ export default function SeriesPage() {
             const formattedSeries = {
                 mediaId: Number(seriesId),
                 mediaType: MEDIA_TYPE,
+                kinopoiskId: data.kinopoiskId,
                 title: data.title,
                 year: data.releaseYear,
                 directors: data.directors,
@@ -93,6 +98,67 @@ export default function SeriesPage() {
         }
 
     }, [seriesId, series]);
+
+
+    useEffect(() => {
+        if (!series) return;
+
+        const fetchProviders = async () => {
+            try {
+                const res = await instance.get("/tmdb/providers", {
+                    params: { mediaId: series.mediaId, mediaType: MEDIA_TYPE }
+                });
+                if (res.status === 200) {
+                    setWatchProviders(res.data);
+                }
+            } catch (e) { console.log("Error fetching providers:", e); }
+        };
+
+        const fetchZona = async () => {
+            try {
+                const res = await instance.get("/zona", {
+                    params: { title: series.title, year: series.year }
+                });
+                setZonaSeries(res.data.fullUrl);
+                console.log(res.data);
+            } catch (e) { console.log(e); }
+        };
+
+        fetchZona();
+        fetchProviders();
+
+    }, [series]);
+
+
+    useEffect(() => {
+        if (!series) return;
+
+        const fetchTorrents = async () => {
+            setTorrents([]);
+            try {
+                const res = await instance.get("/torrents/series", {
+                    params: {
+                        query: series.title,
+                        season: selectedSeason
+                    }
+                });
+
+                const flatList = [];
+                if (res.data) {
+                    Object.values(res.data).forEach(list => flatList.push(...list));
+                }
+
+                const sorted = flatList.sort((a, b) => b.seeds - a.seeds).slice(0, 5);
+                setTorrents(sorted);
+            } catch (e) {
+                console.log("Error fetching torrents:", e);
+                setTorrents([]);
+            }
+        };
+
+        fetchTorrents();
+    }, [series, selectedSeason]);
+
 
 
     const fetchComments = async (page = 0) => {
@@ -156,31 +222,110 @@ export default function SeriesPage() {
 
             <div className="max-w-7xl mx-auto px-4 py-8">
 
-                <VideoPlayer trailerUrl={trailerUrl} movieUrl={filmUrl} />
+                {/* Buttons "Трейлер" and "Смотреть сериал" */}
+                <div className="flex gap-4 mb-4">
+                    <button
+                        onClick={() => setIsTrailer(true)}
+                        className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                            isTrailer
+                                ? 'bg-[#5B7FFF] text-white shadow-lg shadow-[#5B7FFF]/20'
+                                : 'bg-[#191825] text-gray-400 hover:text-white border border-[#2D2A4A] hover:border-[#5B7FFF]'
+                        }`}
+                    >
+                        Трейлер
+                    </button>
+                    <button
+                        onClick={() => setIsTrailer(false)}
+                        className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                            !isTrailer
+                                ? 'bg-[#5B7FFF] text-white shadow-lg shadow-[#5B7FFF]/20'
+                                : 'bg-[#191825] text-gray-400 hover:text-white border border-[#2D2A4A] hover:border-[#5B7FFF]'
+                        } ${!series?.kinopoiskId && 'opacity-50 cursor-not-allowed'}`}
+                        disabled={!series?.kinopoiskId}
+                        title={!series?.kinopoiskId ? "Сериал не доступен для просмотра" : ""}
+                    >
+                        Смотреть сериал
+                    </button>
+                </div>
 
+                <VideoPlayer
+                    trailerUrl={trailerUrl}
+                    isTrailer={isTrailer}
+                    kinopoiskId={series?.kinopoiskId}
+                />
+
+                {/* Where to watch */}
                 <section className="mt-12 w-full">
                     <h2 className="text-3xl font-bold text-white mb-6">Где смотреть</h2>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                        {/* Online cinema */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#10B981] bg-[#10B981]/10 shadow-lg">
-                            <h3 className="font-bold text-2xl text-white">Легально</h3>
+                            <h3 className="font-bold text-2xl text-white">Онлайн кинотеатры</h3>
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="Netflix" />
-                                <PlatformLink name="Кинопоиск HD" />
-                                <PlatformLink name="Amediateka" />
+                                {!watchProviders || watchProviders.isEmpty ? (
+                                    <p className="text-gray-400">Нет доступных онлайн кинотеатров</p>
+                                ) : (
+                                    <>
+                                        {watchProviders.netflix && <PlatformLink name="Netflix" link={watchProviders.netflix} buttonText="Смотреть" />}
+                                        {watchProviders.kinopoisk && <PlatformLink name="Кинопоиск HD" link={watchProviders.kinopoisk} buttonText="Смотреть" />}
+                                        {watchProviders.okko && <PlatformLink name="Okko" link={watchProviders.okko} buttonText="Смотреть" />}
+                                        {watchProviders.appleTv && <PlatformLink name="Apple TV" link={watchProviders.appleTv} buttonText="Смотреть" />}
+                                        {watchProviders.amediateka && <PlatformLink name="Amediateka" link={watchProviders.amediateka} buttonText="Смотреть" />}
+                                        {watchProviders.googlePlay && <PlatformLink name="Google Play" link={watchProviders.googlePlay} buttonText="Купить" />}
+                                    </>
+                                )}
                             </div>
                         </div>
+
+                        {/* Free sites */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#F59E0B] bg-[#F59E0B]/10 shadow-lg">
-                            <h3 className="font-bold text-2xl text-white">Нелегально</h3>
+                            <h3 className="font-bold text-2xl text-white">Бесплатный сайты</h3>
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="HDRezka" />
-                                <PlatformLink name="SeasonVar" />
+                                <PlatformLink name="Zona" link={zonaSeries} buttonText="Поиск" />
                             </div>
                         </div>
+
+                        {/* Torrents */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#5B7FFF] bg-[#5B7FFF]/10 shadow-lg">
-                            <h3 className="font-bold text-2xl text-white">Торрент</h3>
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <h3 className="font-bold text-2xl text-white">Торрент</h3>
+
+                                {/* Selector of seasons */}
+                                {series.seasons > 0 && (
+                                    <div className="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto max-w-full custom-scrollbar">
+                                        {Array.from({ length: series.seasons }, (_, i) => i + 1).map((seasonNum) => (
+                                            <button
+                                                key={seasonNum}
+                                                onClick={() => setSelectedSeason(seasonNum)}
+                                                className={`px-3 py-1 rounded-md text-sm font-bold whitespace-nowrap transition-colors border ${
+                                                    selectedSeason === seasonNum
+                                                        ? 'bg-[#5B7FFF] border-[#5B7FFF] text-white'
+                                                        : 'bg-transparent border-[#2D2A4A] text-gray-400 hover:text-white hover:border-[#5B7FFF]'
+                                                }`}
+                                            >
+                                                Сезон {seasonNum}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="Rutracker" buttonText="Скачать" />
-                                <PlatformLink name="Rutor" buttonText="Magnet" />
+                                {torrents.length > 0 ? (
+                                    torrents.map((tor, idx) => (
+                                        <PlatformLink
+                                            key={idx}
+                                            name={`${tor.resolution} ${tor.quality} (${tor.size})`}
+                                            link={tor.link}
+                                            buttonText="Скачать"
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-gray-400">
+                                        Раздач для {selectedSeason} сезона не найдено
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>

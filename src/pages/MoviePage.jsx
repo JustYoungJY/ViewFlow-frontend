@@ -15,16 +15,18 @@ export default function MoviePage() {
 
     const [movie, setMovie] = useState(null);
     const [similarMovies, setSimilarMovies] = useState(null)
-    const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU'); // Трейлер Матрицы
-    const [filmUrl, setFilmUrl] = useState('https://www.youtube.com/embed/dQw4w9WgXcQ'); // Заглушка
+    const [trailerUrl, setTrailerUrl] = useState('https://www.youtube.com/embed/g_rB4v75jqU');
     const [commentRating, setCommentRating] = useState(0);
+    const [isTrailer, setIsTrailer] = useState(true);
     const { showToast } = useToast();
 
-    // States for Comment
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
+    const [watchProviders, setWatchProviders] = useState(null);
+    const [torrents, setTorrents] = useState([]);
+    const [zonaMovie, setZonaMovie] = useState(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -37,10 +39,12 @@ export default function MoviePage() {
             })
 
             const data = response.data
+            console.log("Trailer ID:", data.trailerYoutubeId);
 
             const formattedMovie = {
                 mediaId: Number(movieId),
                 mediaType: "MOVIE",
+                kinopoiskId: data.kinopoiskId,
                 title: data.title,
                 year: data.releaseYear,
                 directors: data.directors,
@@ -144,6 +148,54 @@ export default function MoviePage() {
         }
     }, [movieId, currentPage]);
 
+
+
+    useEffect(() => {
+        if (!movie) return;
+
+        const fetchProviders = async () => {
+            try {
+                const res = await instance.get("/tmdb/providers", {
+                    params: { mediaId: movie.mediaId, mediaType: "MOVIE" }
+                });
+                if (res.status === 200) {
+                    setWatchProviders(res.data);
+                }
+            } catch (e) { console.log(e); }
+        };
+
+
+        const fetchTorrents = async () => {
+            try {
+                const res = await instance.get("/torrents/movie", {
+                    params: { query: movie.title }
+                });
+
+                const flatList = [];
+                Object.values(res.data).forEach(list => flatList.push(...list));
+
+                const sorted = flatList.sort((a, b) => b.seeds - a.seeds).slice(0, 3);
+                setTorrents(sorted);
+            } catch (e) { console.log(e); }
+        };
+
+
+        const fetchZona = async () => {
+            try {
+                const res = await instance.get("/zona", {
+                    params: { title: movie.title, year: movie.year }
+                });
+                setZonaMovie(res.data);
+            } catch (e) { console.log(e); }
+        };
+
+
+        fetchProviders();
+        fetchTorrents();
+        fetchZona();
+
+    }, [movie]);
+
     if (!movie) return <div className="text-white">Загрузка...</div>;
 
     return (
@@ -151,32 +203,98 @@ export default function MoviePage() {
 
             <MovieHeader movie={movie} />
 
+
             <div className="max-w-7xl mx-auto px-4 py-8">
 
-                <VideoPlayer trailerUrl={trailerUrl} movieUrl={filmUrl} />
+                {/* Buttons "Трейлер" and "Смотреть фильм" */}
+                <div className="flex gap-4 mb-4">
+                    <button
+                        onClick={() => setIsTrailer(true)}
+                        className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                            isTrailer
+                                ? 'bg-[#5B7FFF] text-white shadow-lg shadow-[#5B7FFF]/20'
+                                : 'bg-[#191825] text-gray-400 hover:text-white border border-[#2D2A4A] hover:border-[#5B7FFF]'
+                        }`}
+                    >
+                        Трейлер
+                    </button>
+                    <button
+                        onClick={() => setIsTrailer(false)}
+                        className={`px-6 py-2 rounded-lg font-bold transition-all duration-300 ${
+                            !isTrailer
+                                ? 'bg-[#5B7FFF] text-white shadow-lg shadow-[#5B7FFF]/20'
+                                : 'bg-[#191825] text-gray-400 hover:text-white border border-[#2D2A4A] hover:border-[#5B7FFF]'
+                        } ${!movie?.kinopoiskId && 'opacity-50 cursor-not-allowed'}`}
+                        disabled={!movie?.kinopoiskId}
+                        title={!movie?.kinopoiskId ? "Фильм не доступен для просмотра" : ""}
+                    >
+                        Смотреть фильм
+                    </button>
+                </div>
 
+                {/* Player */}
+                <VideoPlayer
+                    trailerUrl={trailerUrl}
+                    isTrailer={isTrailer}
+                    kinopoiskId={movie?.kinopoiskId}
+                />
+
+
+                {/* Where to watch */}
                 <section className="mt-12 w-full">
                     <h2 className="text-3xl font-bold text-white mb-6">Где смотреть</h2>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                        {/* Online cinema */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#10B981] bg-[#10B981]/10 shadow-lg">
-                            <h3 className="font-bold text-2xl text-white">Легально</h3>
+                            <h3 className="font-bold text-2xl text-white">Онлайн кинотеатры</h3>
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="Netflix" />
-                                <PlatformLink name="Кинопоиск HD" />
+                                {!watchProviders || watchProviders.isEmpty ? (
+                                    <p className="text-gray-400">Нет доступных онлайн кинотеатров</p>
+                                ) : (
+                                    <>
+                                        {watchProviders.netflix && <PlatformLink name="Netflix" link={watchProviders.netflix} buttonText="Смотреть" />}
+                                        {watchProviders.kinopoisk && <PlatformLink name="Кинопоиск" link={watchProviders.kinopoisk} buttonText="Смотреть" />}
+                                        {watchProviders.okko && <PlatformLink name="Okko" link={watchProviders.okko} buttonText="Смотреть" />}
+                                        {watchProviders.appleTv && <PlatformLink name="Apple TV" link={watchProviders.appleTv} buttonText="Купить" />}
+                                        {watchProviders.googlePlay && <PlatformLink name="Google Play" link={watchProviders.googlePlay} buttonText="Купить" />}
+                                    </>
+                                )}
                             </div>
                         </div>
+
+                        {/* Free sites */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#F59E0B] bg-[#F59E0B]/10 shadow-lg">
-                            <h3 className="font-bold text-2xl text-white">Нелегально</h3>
+                            <h3 className="font-bold text-2xl text-white">Бесплатные сайты</h3>
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="HDRezka" />
-                                <PlatformLink name="LordFilm" />
+                                {zonaMovie ? (
+                                    <PlatformLink
+                                        name={`Zona (${zonaMovie.year})`}
+                                        link={zonaMovie.fullUrl}
+                                        buttonText="Сайт"
+                                    />
+                                ) : (
+                                    <p className="text-gray-400">Нет доступных бесплатных сайтов</p>
+                                )}
                             </div>
                         </div>
+
+                        {/* Torrent */}
                         <div className="flex flex-col gap-4 rounded-xl p-6 border-2 border-[#5B7FFF] bg-[#5B7FFF]/10 shadow-lg">
                             <h3 className="font-bold text-2xl text-white">Торрент</h3>
                             <div className="flex flex-col gap-3">
-                                <PlatformLink name="Rutracker" buttonText="Скачать" />
-                                <PlatformLink name="1337x" buttonText="Magnet" />
+                                {torrents.length > 0 ? (
+                                    torrents.map((tor, idx) => (
+                                        <PlatformLink
+                                            key={idx}
+                                            name={`${tor.resolution} ${tor.quality} (${tor.size})`}
+                                            link={tor.link}
+                                            buttonText="Скачать"
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-gray-400">Раздач не найдено</p>
+                                )}
                             </div>
                         </div>
                     </div>
