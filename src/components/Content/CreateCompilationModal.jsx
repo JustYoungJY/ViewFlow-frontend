@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import SearchResultsDropdown from "../UI/Search/SearchResultsDropdown.jsx";
 import instance from "../../api/axiosInstance.js";
+import { useToast } from "../../context/ToastContext.jsx";
 
 
 export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
@@ -13,6 +14,13 @@ export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
     };
 
     const [formData, setFormData] = useState(initialFormData);
+    const { showToast } = useToast();
+
+    const [availableTags, setAvailableTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
+    const [isLoadingTags, setIsLoadingTags] = useState(false);
+    const [tagSearchQuery, setTagSearchQuery] = useState('');
+    const [filteredTags, setFilteredTags] = useState([]);
 
     // Reset form data when modal is opened
     useEffect(() => {
@@ -21,10 +29,39 @@ export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
             setSearchQuery('');
             setSearchResults([]);
             setShowDropdown(false);
+            setSelectedTags([]);
+            setTagSearchQuery('');
+            fetchTags();
         }
     }, [isOpen]);
 
-    // Search functionality
+    // Fetch tags from backend
+    const fetchTags = async () => {
+        setIsLoadingTags(true);
+        try {
+            const response = await instance.get('/tags');
+            setAvailableTags(response.data.content || []);
+            setFilteredTags(response.data.content || []);
+        } catch (error) {
+            console.error('Error fetching tags:', error);
+            showToast('Не удалось загрузить теги', 'error');
+        } finally {
+            setIsLoadingTags(false);
+        }
+    };
+
+    // Filter tags based on search query
+    useEffect(() => {
+        if (tagSearchQuery.trim() === '') {
+            setFilteredTags(availableTags);
+        } else {
+            const filtered = availableTags.filter(tag => 
+                tag.name.toLowerCase().includes(tagSearchQuery.toLowerCase())
+            );
+            setFilteredTags(filtered);
+        }
+    }, [tagSearchQuery, availableTags]);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -121,6 +158,23 @@ export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
         }));
     };
 
+    // Handle adding a tag to selected tags
+    const handleAddTag = (tag) => {
+        if (selectedTags.length >= 5) {
+            showToast('Можно выбрать максимум 5 тегов', 'warning');
+            return;
+        }
+
+        if (!selectedTags.some(t => t.id === tag.id)) {
+            setSelectedTags([...selectedTags, tag]);
+        }
+    };
+
+    // Handle removing a tag from selected tags
+    const handleRemoveTag = (tagId) => {
+        setSelectedTags(selectedTags.filter(tag => tag.id !== tagId));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -133,12 +187,30 @@ export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
         }
 
         try {
-            await instance.post('/compilations', formData);
+            // Create the compilation
+            const response = await instance.post('/compilations', formData);
+
+            const compilationId = response.data;
+
+            // Add tags to the compilation
+            if (selectedTags.length > 0) {
+                for (const tag of selectedTags) {
+                    await instance.post(`/tags/compilations/${compilationId}`, null, {
+                        params: { tagId: tag.id }
+                    });
+                }
+            }
+
             onSuccess();
             onClose();
         } catch (err) {
-            console.error(err);
-            setError('Не удалось создать подборку. Проверьте данные.');
+            console.error('Error creating compilation:', err);
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message);
+            } else {
+                setError('Не удалось создать подборку. Проверьте данные.');
+            }
+            showToast('Не удалось создать подборку', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -237,6 +309,73 @@ export default function CreateCompilationModal({ isOpen, onClose, onSuccess }) {
                         <span className="material-symbols-outlined text-gray-500">
                             {formData.isPublic ? 'public' : 'lock'}
                         </span>
+                    </div>
+
+                    {/* Tags Section */}
+                    <div className="space-y-3 pt-2 border-t border-white/10">
+                        <div className="flex justify-between items-center">
+                            <label className="text-sm font-medium text-gray-300">Теги (максимум 5)</label>
+                            <span className="text-xs text-gray-500">{selectedTags.length}/5</span>
+                        </div>
+
+                        {/* Selected Tags */}
+                        {selectedTags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {selectedTags.map(tag => (
+                                    <div 
+                                        key={tag.id} 
+                                        className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#5B7FFF]/20 border border-[#5B7FFF]/30 text-white text-xs"
+                                    >
+                                        <span>{tag.name}</span>
+                                        <button
+                                            onClick={() => handleRemoveTag(tag.id)}
+                                            className="p-0.5 hover:bg-[#5B7FFF]/20 rounded-full transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">close</span>
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Tag Search */}
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Поиск тегов..."
+                                value={tagSearchQuery}
+                                onChange={(e) => setTagSearchQuery(e.target.value)}
+                                className="w-full h-10 px-3 rounded-lg bg-[#0F0A1F] text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#5B7FFF]"
+                            />
+                            {isLoadingTags && (
+                                <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <span className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full inline-block"></span>
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Available Tags */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                            {filteredTags.map(tag => (
+                                <button
+                                    key={tag.id}
+                                    onClick={() => handleAddTag(tag)}
+                                    disabled={selectedTags.some(t => t.id === tag.id)}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                                        selectedTags.some(t => t.id === tag.id)
+                                            ? 'bg-[#5B7FFF]/50 text-white cursor-default'
+                                            : 'bg-[#4B5563] text-[#E5E7EB] hover:bg-[#5B7FFF] cursor-pointer'
+                                    }`}
+                                >
+                                    {tag.name}
+                                </button>
+                            ))}
+                            {filteredTags.length === 0 && !isLoadingTags && (
+                                <div className="w-full text-center text-gray-500 text-sm py-2">
+                                    Теги не найдены
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Media List Section (Simplified for DTO requirement) */}

@@ -186,14 +186,19 @@ export default function Header() {
 
                 {isAuthenticated ? (
                     <div 
-                        className="w-10 h-10 rounded-full overflow-hidden cursor-pointer border-2 border-[#5B7FFF] hover:border-[#A259FF] transition-all duration-300"
+                        className="flex items-center gap-3 cursor-pointer"
                         onClick={navigateToProfile}
                     >
-                        <img 
-                            src={currentUser.avatarUrl || "/default-avatar.jpg"}
-                            alt="User avatar" 
-                            className="w-full h-full object-cover"
-                        />
+                        <span className="text-white text-sm font-medium hidden sm:block">
+                            {currentUser.username}
+                        </span>
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#5B7FFF] hover:border-[#A259FF] transition-all duration-300">
+                            <img 
+                                src={currentUser.avatarUrl || "/default-avatar.jpg"}
+                                alt="User avatar" 
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
                     </div>
                 ) : (
                     <AuthButton

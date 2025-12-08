@@ -35,11 +35,9 @@ export default function CompilationCard({collection, onTagClick}) {
             if (isLiked) {
                 setLikes(prev => prev - 1);
                 setIsLiked(false);
-                showToast("Лайк удален", "success");
             } else {
                 setLikes(prev => prev + 1);
                 setIsLiked(true);
-                showToast("Лайк добавлен", "success");
             }
         } catch (error) {
             console.error("Error toggling like status:", error);
