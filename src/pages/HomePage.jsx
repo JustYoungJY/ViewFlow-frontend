@@ -1,5 +1,5 @@
 import Carousel from "../components/Content/Carousel/Carousel.jsx";
-import HorizontalSlider from "../components/Content/Sliders/HorizontalSlider.jsx";
+import NewCompilationsSlider from "../components/Content/Sliders/NewCompilationsSlider.jsx";
 import {Link} from "react-router-dom";
 import Categories from "../components/Content/Сategories.jsx";
 import Randomizer from "../components/Content/Randomizer.jsx";
@@ -26,7 +26,7 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                <HorizontalSlider />
+                <NewCompilationsSlider />
             </section>
 
             <section className="py-12 max-w-7xl mx-auto px-4">
@@ -37,7 +37,7 @@ export default function HomePage() {
                 <Categories />
             </section>
 
-            <section className="py-12 max-w-7xl mx-auto px-4">
+            <section id="randomizer-section" className="py-12 max-w-7xl mx-auto px-4">
                 <Randomizer />
             </section>
         </div>

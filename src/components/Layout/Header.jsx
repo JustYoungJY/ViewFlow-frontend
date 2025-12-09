@@ -8,7 +8,7 @@ import instance from "../../api/axiosInstance.js";
 
 
 export default function Header() {
-    const { currentUser, isAuthenticated } = useAuth();
+    const { currentUser, isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
 
     const navItems = [
@@ -43,6 +43,12 @@ export default function Header() {
         if (currentUser && currentUser.username) {
             navigate(`/profile/${currentUser.username}`);
         }
+    }
+
+    const handleLogout = (e) => {
+        e.stopPropagation(); // Prevent event bubbling to parent div
+        logout();
+        navigate("/");
     }
 
     useEffect(() => {
@@ -199,6 +205,15 @@ export default function Header() {
                                 className="w-full h-full object-cover"
                             />
                         </div>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center justify-center w-10 h-10 rounded-full text-[#A6A4B0] hover:text-white hover:bg-[#2D2A4A] transition-all"
+                            title="Выйти из аккаунта"
+                        >
+                            <span className="material-symbols-outlined text-2xl">
+                                logout
+                            </span>
+                        </button>
                     </div>
                 ) : (
                     <AuthButton

@@ -1,4 +1,4 @@
-import {useState, useEffect, use} from 'react';
+import {useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom';
 import MovieCard from "../components/UI/Cards/MovieCard.jsx";
 import CompilationCard from "../components/UI/Cards/CompilationCard.jsx";

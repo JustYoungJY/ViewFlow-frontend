@@ -14,6 +14,7 @@ const Toast = ({ id, message, type, onDismiss }) => {
 
     const handleDismiss = useCallback(() => {
         setIsVisible(false);
+        // Match the timeout with the animation duration in CSS (300ms)
         setTimeout(() => onDismiss(id), 300);
     }, [id, onDismiss]);
 
@@ -32,6 +33,7 @@ const Toast = ({ id, message, type, onDismiss }) => {
                 ${styleMap[type]}
                 ${isVisible ? 'animate-slide-in' : 'animate-slide-out'}
             `}
+            style={{ pointerEvents: isVisible ? 'auto' : 'none' }}
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
@@ -61,7 +63,10 @@ export function ToastProvider({ children }) {
     }, []);
 
     const dismissToast = useCallback((id) => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
+        // Use requestAnimationFrame to ensure DOM updates are synchronized with animation
+        requestAnimationFrame(() => {
+            setToasts(prev => prev.filter(toast => toast.id !== id));
+        });
     }, []);
 
     const contextValue = { showToast };
@@ -70,15 +75,21 @@ export function ToastProvider({ children }) {
         <ToastContext.Provider value={contextValue}>
             {children}
 
-            <div className="fixed top-4 right-4 z-[100] space-y-3 whitespace-pre-wrap">
-                {toasts.map(toast => (
-                    <Toast
-                        key={toast.id}
-                        {...toast}
-                        onDismiss={dismissToast}
-                    />
-                ))}
-            </div>
+            {toasts.length > 0 && (
+                <div 
+                    className="fixed top-4 right-4 z-[100] space-y-3 whitespace-pre-wrap"
+                    style={{ pointerEvents: 'auto' }}
+                    aria-live="polite"
+                >
+                    {toasts.map(toast => (
+                        <Toast
+                            key={toast.id}
+                            {...toast}
+                            onDismiss={dismissToast}
+                        />
+                    ))}
+                </div>
+            )}
         </ToastContext.Provider>
     );
 }

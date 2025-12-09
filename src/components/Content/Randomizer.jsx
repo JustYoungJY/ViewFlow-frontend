@@ -85,7 +85,7 @@ export default function Randomizer() {
     };
 
     return (
-        <div id="randomizer-section"
+        <div
              className="bg-[#1a1826] rounded-3xl p-6 md:p-10 shadow-2xl border border-[#2D2A4A] mt-12 relative overflow-hidden">
 
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#5B7FFF] opacity-5 blur-[120px] rounded-full pointer-events-none"></div>
@@ -254,7 +254,6 @@ export default function Randomizer() {
                             </div>
                         ) : (
                             <div className="text-center opacity-50">
-                                <div className="text-7xl mb-6">🎲</div>
                                 <p className="text-2xl text-white font-semibold">Испытай удачу</p>
                                 <p className="text-sm mt-2 max-w-xs mx-auto">Нажми кнопку ниже, и мы подберем для тебя идеальный фильм на вечер</p>
                             </div>
